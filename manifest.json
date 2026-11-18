@@ -1,0 +1,15 @@
+{
+  "name": "Turno Certo (Clone)",
+  "short_name": "TurnoCerto",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F3F4F7",
+  "theme_color": "#4C55B8",
+  "icons": [
+    {
+      "src": "icons/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

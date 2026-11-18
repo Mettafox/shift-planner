@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Turno Certo</title>
+  <meta name="theme-color" content="#4C55B8">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/logo.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+    <div class="top">
+      <div class="brand">
+        <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true">
+          <rect x="1" y="1" width="28" height="28" rx="8" fill="#4C55B8"></rect>
+          <circle cx="14" cy="15" r="8" fill="#F2B33D"></circle>
+          <circle cx="18.5" cy="12" r="7" fill="#4C55B8"></circle>
+        </svg>
+        <span>Turno Certo</span>
+      </div>
+      <button class="iconbtn" id="todayBtn" data-i18n-aria-label="go_today" aria-label="Ir para hoje">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="9"></circle>
+          <circle cx="12" cy="12" r="3" fill="currentColor"></circle>
+        </svg>
+      </button>
+    </div>
+
+    <!-- CALENDAR -->
+    <section id="v-cal">
+      <div class="monthbar">
+        <button class="iconbtn" data-mv="-1" data-i18n-aria-label="prev_month" aria-label="Mês anterior">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 5l-7 7 7 7"/></svg>
+        </button>
+        <h1 class="h1" id="monthTitle">Novembro</h1>
+        <button class="iconbtn" data-mv="1" data-i18n-aria-label="next_month" aria-label="Mês seguinte">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+
+      <div class="modebar">
+        <button class="iconbtn edit-toggle" id="paintSwitch" aria-pressed="false" data-i18n-aria-label="edit_mode" aria-label="Modo de edição">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M16 3l5 5-11 11H5v-5z"></path><path d="M14 5l5 5"></path>
+          </svg>
+        </button>
+        <span class="small muted" id="paintHint" data-i18n="tap_to_edit" style="display:none">Toca num dia para o editar</span>
+      </div>
+
+      <div class="paint hidden" id="paintBar"></div>
+      <div class="wk" id="weekdays"></div>
+      <div class="grid" id="grid"></div>
+
+      <div id="emptyCal">
+        <div class="card empty" style="margin-top:14px">
+          <b data-i18n="empty_title">A tua escala está vazia</b>
+          <p class="small muted" data-i18n="empty_text">Cria os teus turnos na aba «Turnos». Depois liga o modo de edição e toca nos dias.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SUMMARY -->
+    <section id="v-res" class="hidden">
+      <div class="monthbar">
+        <button class="iconbtn" data-mv="-1"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 5l-7 7 7 7"/></svg></button>
+        <h1 class="h1" id="resTitle">Novembro</h1>
+        <button class="iconbtn" data-mv="1"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 5l7 7-7 7"/></svg></button>
+      </div>
+      <div id="resBody"></div>
+    </section>
+
+    <!-- YEAR -->
+    <section id="v-ano" class="hidden">
+      <div class="monthbar">
+        <button class="iconbtn" data-yv="-1"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M15 5l-7 7 7 7"/></svg></button>
+        <h1 class="h1" id="anoTitle">O meu 2026</h1>
+        <button class="iconbtn" data-yv="1"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 5l7 7-7 7"/></svg></button>
+      </div>
+      <div id="anoBody"></div>
+    </section>
+
+    <!-- SHIFTS -->
+    <section id="v-tur" class="hidden">
+      <h1 class="h1" style="margin:6px 0 4px" data-i18n="your_shifts">Os teus turnos</h1>
+      <p class="muted small" style="margin:0 0 14px" data-i18n="your_shifts_desc">Define os horários uma vez. Depois é só pintar o calendário.</p>
+      <div class="card tlist" id="typeList"></div>
+      <button class="btn primary block" id="addType" data-i18n="new_shift">Novo turno</button>
+    </section>
+
+    <!-- SETTINGS -->
+    <section id="v-def" class="hidden">
+      <h1 class="h1" style="margin:6px 0 14px" data-i18n="settings">Definições</h1>
+
+      <!-- Holidays -->
+      <div class="card">
+        <h2 class="h2" data-i18n="holidays">Feriados</h2>
+        <label class="field">
+          <span data-i18n="country">País</span>
+          <select class="inp" data-set="country">
+            <option value="PT" data-i18n="country_pt">Portugal</option>
+            <option value="ES" data-i18n="country_es">Espanha</option>
+            <option value="FR" data-i18n="country_fr">França</option>
+            <option value="DE" data-i18n="country_de">Alemanha</option>
+            <option value="GB" data-i18n="country_gb">Reino Unido</option>
+            <option value="IE" data-i18n="country_ie">Irlanda</option>
+            <option value="IT" data-i18n="country_it">Itália</option>
+            <option value="NL" data-i18n="country_nl">Países Baixos</option>
+            <option value="BE" data-i18n="country_be">Bélgica</option>
+            <option value="AT" data-i18n="country_at">Áustria</option>
+            <option value="CH" data-i18n="country_ch">Suíça</option>
+            <option value="SE" data-i18n="country_se">Suécia</option>
+            <option value="NO" data-i18n="country_no">Noruega</option>
+            <option value="DK" data-i18n="country_dk">Dinamarca</option>
+            <option value="FI" data-i18n="country_fi">Finlândia</option>
+            <option value="PL" data-i18n="country_pl">Polónia</option>
+            <option value="US" data-i18n="country_us">Estados Unidos</option>
+            <option value="CA" data-i18n="country_ca">Canadá</option>
+            <option value="BR" data-i18n="country_br">Brasil</option>
+            <option value="MX" data-i18n="country_mx">México</option>
+            <option value="AU" data-i18n="country_au">Austrália</option>
+            <option value="NZ" data-i18n="country_nz">Nova Zelândia</option>
+            <option value="JP" data-i18n="country_jp">Japão</option>
+            <option value="ZA" data-i18n="country_za">África do Sul</option>
+          </select>
+        </label>
+        <button class="btn primary block" id="loadHolidaysBtn" data-i18n="load_holidays">Carregar feriados</button>
+        <p class="small muted" id="holidaysStatus" style="margin:10px 0 0"></p>
+      </div>
+
+      <!-- Appearance -->
+      <div class="card">
+        <h2 class="h2" data-i18n="appearance">Aspeto</h2>
+        <label class="field">
+          <span data-i18n="theme">Tema</span>
+          <select class="inp" data-set="theme">
+            <option value="light" data-i18n="theme_light">Claro</option>
+            <option value="dark" data-i18n="theme_dark">Escuro</option>
+          </select>
+        </label>
+        <label class="field">
+          <span data-i18n="time_format">Formato de hora</span>
+          <select class="inp" data-set="timeFormat">
+            <option value="24" data-i18n="time_format_24">24 horas (por defeito)</option>
+            <option value="12" data-i18n="time_format_12">12 horas (AM / PM)</option>
+          </select>
+        </label>
+      </div>
+
+      <!-- Language -->
+      <div class="card">
+        <h2 class="h2" data-i18n="language">Idioma</h2>
+        <select class="inp" data-set="lang">
+          <option value="pt">Português (Portugal)</option>
+          <option value="en">English</option>
+        </select>
+      </div>
+
+      <!-- OTHER SETTINGS (collapsible) -->
+      <details class="card collapsible" id="otherSettings">
+        <summary class="h2" data-i18n="other_settings">Outras definições</summary>
+        <div class="collapsible-content">
+
+          <!-- Payment -->
+          <h3 class="h3" data-i18n="payment">Pagamento</h3>
+          <label class="field">
+            <span data-i18n="hourly_rate">Valor por hora (€)</span>
+            <input class="inp" type="number" inputmode="decimal" min="0" step="0.01" data-set="rate">
+            <small data-i18n="hourly_rate_hint">Deixa a 0 se não quiseres ver a estimativa.</small>
+          </label>
+          <div class="two">
+            <label class="field"><span data-i18n="night_bonus">Acréscimo noturno (%)</span><input class="inp" type="number" inputmode="decimal" min="0" data-set="nightPct"></label>
+            <label class="field"><span data-i18n="holiday_bonus">Acréscimo em feriado (%)</span><input class="inp" type="number" inputmode="decimal" min="0" data-set="holPct"></label>
+          </div>
+          <div class="two">
+            <label class="field"><span data-i18n="night_starts">Noite começa às</span>
+              <input class="inp time-input" type="text" readonly data-set="nightStart">
+            </label>
+            <label class="field"><span data-i18n="night_ends">Noite acaba às</span>
+              <input class="inp time-input" type="text" readonly data-set="nightEnd">
+            </label>
+          </div>
+          <div class="two">
+            <label class="field"><span data-i18n="weekly_hours">Horas por semana</span><input class="inp" type="number" inputmode="decimal" min="0" data-set="weekly"></label>
+            <label class="field"><span data-i18n="overtime_bonus">Acréscimo horas a mais (%)</span><input class="inp" type="number" inputmode="decimal" min="0" data-set="extraPct"></label>
+          </div>
+
+          <!-- Two jobs -->
+          <h3 class="h3" data-i18n="two_jobs" style="margin-top:20px">Dois empregos</h3>
+          <label class="check"><input type="checkbox" data-set="job2on"><span data-i18n="has_second_job">Tenho um segundo emprego</span></label>
+          <div class="two">
+            <label class="field"><span data-i18n="job1_name">Nome do 1.º</span><input class="inp" type="text" maxlength="24" data-set="job1name" data-i18n-placeholder="job1_placeholder" placeholder="Ex.: Hospital"></label>
+            <label class="field"><span data-i18n="job2_name">Nome do 2.º</span><input class="inp" type="text" maxlength="24" data-set="job2name" data-i18n-placeholder="job2_placeholder" placeholder="Ex.: Clínica"></label>
+          </div>
+          <label class="field"><span data-i18n="job2_rate">Valor por hora no 2.º emprego (€)</span><input class="inp" type="number" inputmode="decimal" min="0" step="0.01" data-set="job2rate"></label>
+
+        </div>
+      </details>
+
+      <!-- Data -->
+      <div class="card">
+        <h2 class="h2" data-i18n="your_data">Os teus dados</h2>
+        <p class="small muted" style="margin:0 0 12px" data-i18n="data_note">Tudo fica guardado só neste telemóvel. Guarda uma cópia de vez em quando.</p>
+        <div class="row">
+          <button class="btn" id="backupBtn" style="flex:1" data-i18n="backup">Guardar cópia</button>
+          <button class="btn" id="restoreBtn" style="flex:1" data-i18n="restore">Repor cópia</button>
+        </div>
+        <input type="file" id="restoreFile" accept="application/json,.json" class="hidden">
+        <button class="btn danger block" id="wipeBtn" style="margin-top:12px" data-i18n="wipe">Apagar tudo</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- NAV -->
+  <nav class="nav" aria-label="Menu">
+    <div class="in">
+      <button data-tab="cal" aria-current="page"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span data-i18n="nav_calendar">Calendário</span></button>
+      <button data-tab="res"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 20V11M12 20V5M19 20v-6"/></svg><span data-i18n="nav_summary">Resumo</span></button>
+      <button data-tab="ano"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.4l-5.2 2.7 1-5.8L3.5 9.2l5.9-.8z"/></svg><span data-i18n="nav_year">Ano</span></button>
+      <button data-tab="tur"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/></svg><span data-i18n="nav_shifts">Turnos</span></button>
+      <button data-tab="more" aria-label="Mais opções"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg><span data-i18n="nav_more">Mais</span></button>
+      <button data-tab="def"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span data-i18n="nav_settings">Definições</span></button>
+    </div>
+  </nav>
+
+  <div class="scrim" id="scrim"></div>
+  <div class="sheet" id="sheet"><div class="grab"></div><div id="sheetBody"></div></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
